@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 
 namespace ConsoleApp1
 {
+    //This does not seem necessary/useful. Consider removing this class and just using Console.WriteLine.
     public class ConsolePrinter
     {
         public static object PrintValue;
