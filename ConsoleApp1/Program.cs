@@ -12,13 +12,13 @@ namespace ConsoleApp1
     {
         //results does not need to be global, make this private/parameter
         static string[] results = new string[50];
-        //key does not need to be global, make this private/return.
-        static char key;
         static Tuple<string, string> names;
         static ConsolePrinter printer = new ConsolePrinter();
 
         static void Main(string[] args)
         {
+            char key;
+
             printer.Value("Press ? to get instructions.").ToString();
             //If user doesn't enter '?' program exits. Remove this since only workflow is to get instructions
             if (Console.ReadLine() == "?")
@@ -28,7 +28,7 @@ namespace ConsoleApp1
                 {
                     printer.Value("Press c to get categories").ToString();
                     printer.Value("Press r to get random jokes").ToString();
-                    GetEnteredKey(Console.ReadKey());
+                    key = GetEnteredKey();
                     if (key == 'c')
                     {
                         //Get category list, and display it to user
@@ -39,14 +39,13 @@ namespace ConsoleApp1
                     {
                         //Generate 1-9 random jokes for the user
                         printer.Value("Want to use a random name? y/n").ToString();
-                        GetEnteredKey(Console.ReadKey());
-
-                        if (key == 'y') {
+                        
+                        if (GetEnteredKey() == 'y') {
                             //Regenerate random name list every time
                             GetNames();
                         }
                         printer.Value("Want to specify a category? y/n").ToString();
-                        if (key == 'y')
+                        if (GetEnteredKey() == 'y')
                         {
                             //Remove duplication of code
                             printer.Value("How many jokes do you want? (1-9)").ToString();
@@ -75,49 +74,15 @@ namespace ConsoleApp1
             printer.Value("[" + string.Join(",", results) + "]").ToString();
         }
 
-        /*This seems unnecessary, instead of using switch, use ReadKey and convert to common casing?*/
-        private static void GetEnteredKey(ConsoleKeyInfo consoleKeyInfo)
+        /// <summary>
+        /// Waits for the user to enter a key, then converts it into the lower case value.
+        /// </summary>
+        /// <returns>Returns the key pressed as lowercase invariant</returns>
+        private static char GetEnteredKey()
         {
             
-            switch (consoleKeyInfo.Key)
-            {
-                case ConsoleKey.C:
-                    key = 'c';
-                    break;
-                case ConsoleKey.D0:
-                    key = '0';
-                    break;
-                case ConsoleKey.D1:
-                    key = '1';
-                    break;
-                case ConsoleKey.D3:
-                    key = '3';
-                    break;
-                case ConsoleKey.D4:
-                    key = '4';
-                    break;
-                case ConsoleKey.D5:
-                    key = '5';
-                    break;
-                case ConsoleKey.D6:
-                    key = '6';
-                    break;
-                case ConsoleKey.D7:
-                    key = '7';
-                    break;
-                case ConsoleKey.D8:
-                    key = '8';
-                    break;
-                case ConsoleKey.D9:
-                    key = '9';
-                    break;
-                case ConsoleKey.R:
-                    key = 'r';
-                    break;
-                case ConsoleKey.Y:
-                    key = 'y';
-                    break;
-            }
+            char key = Char.ToLowerInvariant(Console.ReadKey().KeyChar);
+            return key;
         }
 
         private static void GetRandomJokes(string category, int number)
