@@ -19,10 +19,8 @@ namespace ConsoleApp1 {
                 //Clean up the console window from any previous loops.
                 Console.Clear();
                 //Display Main Menu Options to user.
-                Console.WriteLine("Press c to get categories");
-                Console.WriteLine("Press r to get random jokes");
-                Console.WriteLine("Press x to exit");
-                Console.WriteLine(new String('-', 40));
+                PrintOptions();
+
                 key = GetEnteredKey();
                 if (key == 'c') {
                     //Get category list, and display it to user
@@ -58,6 +56,15 @@ namespace ConsoleApp1 {
 
         }
 
+        /// <summary>
+        /// Prints the main menu options to the console.
+        /// </summary>
+        private static void PrintOptions() {
+            Console.WriteLine("Press c to get categories");
+            Console.WriteLine("Press r to get random jokes");
+            Console.WriteLine("Press x to exit");
+            Console.WriteLine(new String('-', 40));
+        }
 
         private static void PrintResults() {
             Console.WriteLine("[" + string.Join(",", results) + "]");
