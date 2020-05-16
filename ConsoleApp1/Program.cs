@@ -22,6 +22,7 @@ namespace ConsoleApp1 {
                 Console.WriteLine("Press c to get categories");
                 Console.WriteLine("Press r to get random jokes");
                 Console.WriteLine("Press x to exit");
+                Console.WriteLine(new String('-', 40));
                 key = GetEnteredKey();
                 if (key == 'c') {
                     //Get category list, and display it to user
@@ -36,19 +37,15 @@ namespace ConsoleApp1 {
                         names = GetNames();
                     }
                     Console.WriteLine("Want to specify a category? y/n");
+                    string category = null;
                     if (GetEnteredKey() == 'y') {
-                        //Remove duplication of code
-                        Console.WriteLine("How many jokes do you want? (1-9)");
-                        int n = Int32.Parse(Console.ReadLine());
                         Console.WriteLine("Enter a category;");
-                        GetRandomJokes(Console.ReadLine(), names, n);
-                        PrintResults();
-                    } else {
-                        Console.WriteLine("How many jokes do you want? (1-9)");
-                        int n = Int32.Parse(Console.ReadLine());
-                        GetRandomJokes(null, names, n);
-                        PrintResults();
+                        category = Console.ReadLine();
                     }
+
+                    GetRandomJokes(category, names, GetNumberOfJokes());
+                    PrintResults();
+
                 } else if (key == 'x') {
                     //Exit the program cleanly.
                     System.Environment.Exit(0);
@@ -78,7 +75,22 @@ namespace ConsoleApp1 {
             return key;
         }
 
-        private static void GetRandomJokes(string category, Tuple<string,string> names, int number) {
+        /// <summary>
+        /// Prompts the user to enter the number of jokes they want, from 0-9.
+        /// Assumes that if the user enters 0, they want to restart and not see any jokes.
+        /// </summary>
+        /// <returns>Returns an integer value of number of jokes. Allows from 0-9</returns>
+        private static int GetNumberOfJokes() {
+            Console.WriteLine("How many jokes do you want? (1-9)");
+            int numJokes = 0;
+            while (!Int32.TryParse(GetEnteredKey().ToString(), out numJokes) ) {
+                Console.WriteLine("Invalid Selection, please enter a value from 1-9. Enter 0 to restart.");
+            }
+            return numJokes;
+        }
+
+
+        private static void GetRandomJokes(string category, Tuple<string, string> names, int number) {
             new JsonFeed("https://api.chucknorris.io", number);
             //Loop the random joke generator for the number of jokes requested.
             results = JsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category);
@@ -97,11 +109,13 @@ namespace ConsoleApp1 {
         /// </summary>
         /// <param name="amount">Specifies the number of names to generate. Default value of 1. </param>
         /// <returns>Returns a Tuple of a persons name.</returns>
-        private static Tuple<string,string> GetNames(int amount = 1) {
+        private static Tuple<string, string> GetNames(int amount = 1) {
             //Update uri to include query string ?amount= (allows up to 500) to allow each joke to have random name
-            new JsonFeed("https://names.privserv.com/api/?amount=" + amount , 0);
+            new JsonFeed("https://names.privserv.com/api/?amount=" + amount, 0);
             dynamic result = JsonFeed.Getnames();
             return Tuple.Create(result.name.ToString(), result.surname.ToString());
         }
+
+
     }
 }
