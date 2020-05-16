@@ -12,12 +12,15 @@ namespace ConsoleApp1
     {
         static string _url = "";
 
+		//Unused ctor, remove?
         public JsonFeed() { }
-        public JsonFeed(string endpoint, int results)
+        //results parameter is unused, what is this supposed to be for?
+		public JsonFeed(string endpoint, int results)
         {
             _url = endpoint;
         }
         
+		
 		public static string[] GetRandomJokes(string firstname, string lastname, string category)
 		{
 			HttpClient client = new HttpClient();

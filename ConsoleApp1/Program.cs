@@ -10,7 +10,6 @@ namespace ConsoleApp1 {
     class Program {
         //results does not need to be global, make this private/parameter
         static string[] results = new string[50];
-        static Tuple<string, string> names;
 
         static void Main(string[] args) {
             char key;
@@ -31,10 +30,10 @@ namespace ConsoleApp1 {
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
                     Console.WriteLine("Want to use a random name? y/n");
-
+                    Tuple<string, string> names = Tuple.Create("Chuck", "Norris"); // initialize name with a sane default.
                     if (GetEnteredKey() == 'y') {
                         //Regenerate random name list every time
-                        GetNames();
+                        names = GetNames();
                     }
                     Console.WriteLine("Want to specify a category? y/n");
                     if (GetEnteredKey() == 'y') {
@@ -42,12 +41,12 @@ namespace ConsoleApp1 {
                         Console.WriteLine("How many jokes do you want? (1-9)");
                         int n = Int32.Parse(Console.ReadLine());
                         Console.WriteLine("Enter a category;");
-                        GetRandomJokes(Console.ReadLine(), n);
+                        GetRandomJokes(Console.ReadLine(), names, n);
                         PrintResults();
                     } else {
                         Console.WriteLine("How many jokes do you want? (1-9)");
                         int n = Int32.Parse(Console.ReadLine());
-                        GetRandomJokes(null, n);
+                        GetRandomJokes(null, names, n);
                         PrintResults();
                     }
                 } else if (key == 'x') {
@@ -57,7 +56,6 @@ namespace ConsoleApp1 {
                 Console.WriteLine("Press Any Key to Start Again..");
                 Console.ReadKey(true);
 
-                names = null;
             } while (key != 'x');
 
 
@@ -80,7 +78,7 @@ namespace ConsoleApp1 {
             return key;
         }
 
-        private static void GetRandomJokes(string category, int number) {
+        private static void GetRandomJokes(string category, Tuple<string,string> names, int number) {
             new JsonFeed("https://api.chucknorris.io", number);
             //Loop the random joke generator for the number of jokes requested.
             results = JsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category);
@@ -94,11 +92,16 @@ namespace ConsoleApp1 {
             results = JsonFeed.GetCategories();
         }
 
-        private static void GetNames() {
+        /// <summary>
+        /// Calls a name api to generate names.
+        /// </summary>
+        /// <param name="amount">Specifies the number of names to generate. Default value of 1. </param>
+        /// <returns>Returns a Tuple of a persons name.</returns>
+        private static Tuple<string,string> GetNames(int amount = 1) {
             //Update uri to include query string ?amount= (allows up to 500) to allow each joke to have random name
-            new JsonFeed("https://names.privserv.com/api/", 0);
+            new JsonFeed("https://names.privserv.com/api/?amount=" + amount , 0);
             dynamic result = JsonFeed.Getnames();
-            names = Tuple.Create(result.name.ToString(), result.surname.ToString());
+            return Tuple.Create(result.name.ToString(), result.surname.ToString());
         }
     }
 }
