@@ -26,7 +26,7 @@ namespace ConsoleApp1 {
                 key = GetEnteredKey();
                 if (key == 'c') {
                     //Get category list, and display it to user
-                    getCategories();
+                    GetCategories();
                     PrintResults();
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
@@ -55,7 +55,7 @@ namespace ConsoleApp1 {
                     System.Environment.Exit(0);
                 }
                 Console.WriteLine("Press Any Key to Start Again..");
-                Console.ReadKey();
+                Console.ReadKey(true);
 
                 names = null;
             } while (key != 'x');
@@ -75,6 +75,8 @@ namespace ConsoleApp1 {
         private static char GetEnteredKey() {
 
             char key = Char.ToLowerInvariant(Console.ReadKey().KeyChar);
+            //Add a newline after our entered key to make formatting look better.
+            Console.WriteLine();
             return key;
         }
 
@@ -84,9 +86,11 @@ namespace ConsoleApp1 {
             results = JsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category);
         }
 
-        private static void getCategories() {
-            //Correct endpoint for this is: https://api.chucknorris.io/jokes/categories
-            new JsonFeed("https://api.chucknorris.io", 0);
+        /// <summary>
+        /// Calls API for the list of categories, and sets the information into the results variable.
+        /// </summary>
+        private static void GetCategories() {
+            new JsonFeed("https://api.chucknorris.io/jokes/categories", 0);
             results = JsonFeed.GetCategories();
         }
 
