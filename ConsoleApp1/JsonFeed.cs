@@ -48,19 +48,6 @@ namespace ConsoleApp1
             return new string[] { JsonConvert.DeserializeObject<dynamic>(joke).value };
         }
 
-        /// <summary>
-        /// returns an object that contains name and surname
-        /// </summary>
-        /// <param name="client2"></param>
-        /// <returns></returns>
-		public static dynamic Getnames()
-		{
-			HttpClient client = new HttpClient();
-			client.BaseAddress = new Uri(_url);
-			var result = client.GetStringAsync("").Result;
-			return JsonConvert.DeserializeObject<dynamic>(result);
-		}
-
 		public static string[] GetCategories()
 		{
 			HttpClient client = new HttpClient();

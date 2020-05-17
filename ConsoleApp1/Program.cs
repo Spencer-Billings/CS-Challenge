@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using JokeGenerator;
 using Newtonsoft.Json;
 
 namespace ConsoleApp1 {
@@ -29,10 +30,11 @@ namespace ConsoleApp1 {
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
                     Console.WriteLine("Want to use a random name? y/n");
-                    Tuple<string, string> names = Tuple.Create("Chuck", "Norris"); // initialize name with a sane default.
+                    bool randomNames = false;
+                    List<Tuple<string, string>> names = new List<Tuple<string, string>>()
+                        {Tuple.Create("Chuck", "Norris")}; // initialize name with a sane default.
                     if (GetEnteredKey() == 'y') {
-                        //Regenerate random name list every time
-                        names = GetNames();
+                        randomNames = true;
                     }
                     Console.WriteLine("Want to specify a category? y/n");
                     string category = null;
@@ -41,7 +43,13 @@ namespace ConsoleApp1 {
                         category = Console.ReadLine();
                     }
 
-                    GetRandomJokes(category, names, GetNumberOfJokes());
+                    int numJokes = GetNumberOfJokes();
+
+                    if (randomNames) {
+                        names = GetNames(numJokes);
+                    }
+
+                    GetRandomJokes(category, names.FirstOrDefault() , numJokes);
                     PrintResults();
 
                 } else if (key == 'x') {
@@ -116,11 +124,10 @@ namespace ConsoleApp1 {
         /// </summary>
         /// <param name="amount">Specifies the number of names to generate. Default value of 1. </param>
         /// <returns>Returns a Tuple of a persons name.</returns>
-        private static Tuple<string, string> GetNames(int amount = 1) {
-            //Update uri to include query string ?amount= (allows up to 500) to allow each joke to have random name
-            new JsonFeed("https://names.privserv.com/api/?amount=" + amount, 0);
-            dynamic result = JsonFeed.Getnames();
-            return Tuple.Create(result.name.ToString(), result.surname.ToString());
+        private static List<Tuple<string, string>> GetNames(int amount = 1) {
+            NameGenerator nameGen = new NameGenerator(new HttpClient());
+            return nameGen.GetNames(amount);
+
         }
 
 
