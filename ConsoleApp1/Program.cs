@@ -115,8 +115,8 @@ namespace ConsoleApp1 {
         /// Calls API for the list of categories, and sets the information into the results variable.
         /// </summary>
         private static void GetCategories() {
-            new JsonFeed("https://api.chucknorris.io/jokes/categories", 0);
-            results = JsonFeed.GetCategories();
+            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            results = jokeGen.GetCategories().ToArray();
         }
 
         /// <summary>

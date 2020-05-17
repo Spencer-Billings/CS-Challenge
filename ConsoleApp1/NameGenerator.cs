@@ -7,7 +7,7 @@ using System.Text;
 
 namespace JokeGenerator {
     class NameGenerator {
-        private const string baseURL = "https://names.privserv.com/api/";
+        private const string kBaseURL = "https://names.privserv.com/api/";
         HttpClient _client;
 
         public NameGenerator(HttpClient client) {
@@ -20,7 +20,7 @@ namespace JokeGenerator {
         /// <param name="amount">The number of names to generate.</param>
         /// <returns>Returns a List of First/Last names as a Tuple</returns>
         public List<Tuple<string, string>> GetNames(int amount = 1) {
-            _client.BaseAddress = new Uri(baseURL);
+            _client.BaseAddress = new Uri(kBaseURL);
             var nameList = new List<Tuple<string, string>>();
 
             try {

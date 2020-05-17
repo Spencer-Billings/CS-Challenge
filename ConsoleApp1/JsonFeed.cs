@@ -48,12 +48,5 @@ namespace ConsoleApp1
             return new string[] { JsonConvert.DeserializeObject<dynamic>(joke).value };
         }
 
-		public static string[] GetCategories()
-		{
-			HttpClient client = new HttpClient();
-			client.BaseAddress = new Uri(_url);
-
-			return new string[] { Task.FromResult(client.GetStringAsync("categories").Result).Result };
-		}
     }
 }
