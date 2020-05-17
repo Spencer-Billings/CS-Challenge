@@ -49,7 +49,7 @@ namespace ConsoleApp1 {
                         names = GetNames(numJokes);
                     }
 
-                    GetRandomJokes(category, names.FirstOrDefault() , numJokes);
+                    GetRandomJokes(category, names , numJokes);
                     PrintResults();
 
                 } else if (key == 'x') {
@@ -75,7 +75,7 @@ namespace ConsoleApp1 {
         }
 
         private static void PrintResults() {
-            Console.WriteLine("[" + string.Join(",", results) + "]");
+            Console.WriteLine("[" + string.Join("\n", results) + "]");
         }
 
         /// <summary>
@@ -104,11 +104,15 @@ namespace ConsoleApp1 {
             return numJokes;
         }
 
-
-        private static void GetRandomJokes(string category, Tuple<string, string> names, int number) {
-            new JsonFeed("https://api.chucknorris.io", number);
-            //Loop the random joke generator for the number of jokes requested.
-            results = JsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category);
+        /// <summary>
+        /// Calls API for a list of Random jokes
+        /// </summary>
+        /// <param name="category">An optional category of joke.</param>
+        /// <param name="nameList">An optional list of names to be used in the jokes.</param>
+        /// <param name="number">The number of jokes to get.</param>
+        private static void GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
+            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            results = jokeGen.GetRandomJokes(nameList, category, number).ToArray();
         }
 
         /// <summary>
