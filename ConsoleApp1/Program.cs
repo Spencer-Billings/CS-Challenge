@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -11,6 +12,7 @@ namespace ConsoleApp1 {
     class Program {
         //results does not need to be global, make this private/parameter
         static string[] results = new string[50];
+        private static List<string> catList = new List<string>();
 
         static void Main(string[] args) {
             char key;
@@ -39,7 +41,10 @@ namespace ConsoleApp1 {
                     Console.WriteLine("Want to specify a category? y/n");
                     string category = null;
                     if (GetEnteredKey() == 'y') {
-                        Console.WriteLine("Enter a category;");
+                        Console.WriteLine("Enter a category, then Press 'Enter'.");
+                        if (catList.Count > 0) {
+                            Console.WriteLine($"Available Categories: [{string.Join(", ", catList)}]");
+                        }
                         category = Console.ReadLine();
                     }
 
@@ -49,7 +54,7 @@ namespace ConsoleApp1 {
                         names = GetNames(numJokes);
                     }
 
-                    GetRandomJokes(category, names , numJokes);
+                    GetRandomJokes(category, names, numJokes);
                     PrintResults();
 
                 } else if (key == 'x') {
@@ -98,7 +103,7 @@ namespace ConsoleApp1 {
         private static int GetNumberOfJokes() {
             Console.WriteLine("How many jokes do you want? (1-9)");
             int numJokes = 0;
-            while (!Int32.TryParse(GetEnteredKey().ToString(), out numJokes) ) {
+            while (!Int32.TryParse(GetEnteredKey().ToString(), out numJokes)) {
                 Console.WriteLine("Invalid Selection, please enter a value from 1-9. Enter 0 to restart.");
             }
             return numJokes;
@@ -120,7 +125,8 @@ namespace ConsoleApp1 {
         /// </summary>
         private static void GetCategories() {
             var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
-            results = jokeGen.GetCategories().ToArray();
+            catList = jokeGen.GetCategories();
+            results = catList.ToArray();
         }
 
         /// <summary>
