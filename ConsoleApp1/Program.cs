@@ -1,14 +1,9 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using JokeGenerator;
-using Newtonsoft.Json;
 
-namespace ConsoleApp1 {
+namespace JokeGenerator {
     class Program {
         //results does not need to be global, make this private/parameter
         static string[] results = new string[50];
@@ -116,7 +111,7 @@ namespace ConsoleApp1 {
         /// <param name="nameList">An optional list of names to be used in the jokes.</param>
         /// <param name="number">The number of jokes to get.</param>
         private static void GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
-            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            var jokeGen = new JokeGenerator(new HttpClient());
             results = jokeGen.GetRandomJokes(nameList, category, number).ToArray();
         }
 
@@ -124,7 +119,7 @@ namespace ConsoleApp1 {
         /// Calls API for the list of categories, and sets the information into the results variable.
         /// </summary>
         private static void GetCategories() {
-            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            var jokeGen = new JokeGenerator(new HttpClient());
             catList = jokeGen.GetCategories();
             results = catList.ToArray();
         }

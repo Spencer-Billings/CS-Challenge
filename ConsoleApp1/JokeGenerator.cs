@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace JokeGenerator
 {
-    class JokeGenerator
+    public class JokeGenerator
     {
         private const string kBaseURL = "https://api.chucknorris.io";
         HttpClient _client;
