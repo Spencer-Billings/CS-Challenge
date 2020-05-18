@@ -67,5 +67,30 @@ namespace UnitTests {
             //Assert
             Assert.AreEqual(expected, actual.Count);
         }
+
+        [Test]
+        public void GetNames_SendBadRequest_ReturnsEmptyList() {
+            //Arrange
+            int expected = 0;
+
+            var handlerMock = new Mock<HttpMessageHandler>();
+            handlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Content = new StringContent("{\"error\":\"Region or language not found\"}")
+
+                });
+
+            var client = new HttpClient(handlerMock.Object);
+            _sut = new NameGenerator(client);
+
+
+            //Act
+            var actual = _sut.GetNames(expected);
+
+            //Assert
+            Assert.AreEqual(expected, actual.Count);
+        }
     }
 }
