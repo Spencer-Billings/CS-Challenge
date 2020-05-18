@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using JokeGenerator;
 using Newtonsoft.Json;
 
 namespace ConsoleApp1 {
     class Program {
         //results does not need to be global, make this private/parameter
         static string[] results = new string[50];
+        private static List<string> catList = new List<string>();
 
         static void Main(string[] args) {
             char key;
@@ -29,19 +32,29 @@ namespace ConsoleApp1 {
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
                     Console.WriteLine("Want to use a random name? y/n");
-                    Tuple<string, string> names = Tuple.Create("Chuck", "Norris"); // initialize name with a sane default.
+                    bool randomNames = false;
+                    List<Tuple<string, string>> names = new List<Tuple<string, string>>()
+                        {Tuple.Create("Chuck", "Norris")}; // initialize name with a sane default.
                     if (GetEnteredKey() == 'y') {
-                        //Regenerate random name list every time
-                        names = GetNames();
+                        randomNames = true;
                     }
                     Console.WriteLine("Want to specify a category? y/n");
                     string category = null;
                     if (GetEnteredKey() == 'y') {
-                        Console.WriteLine("Enter a category;");
+                        Console.WriteLine("Enter a category, then Press 'Enter'.");
+                        if (catList.Count > 0) {
+                            Console.WriteLine($"Available Categories: [{string.Join(", ", catList)}]");
+                        }
                         category = Console.ReadLine();
                     }
 
-                    GetRandomJokes(category, names, GetNumberOfJokes());
+                    int numJokes = GetNumberOfJokes();
+
+                    if (randomNames) {
+                        names = GetNames(numJokes);
+                    }
+
+                    GetRandomJokes(category, names, numJokes);
                     PrintResults();
 
                 } else if (key == 'x') {
@@ -67,7 +80,7 @@ namespace ConsoleApp1 {
         }
 
         private static void PrintResults() {
-            Console.WriteLine("[" + string.Join(",", results) + "]");
+            Console.WriteLine("[" + string.Join("\n", results) + "]");
         }
 
         /// <summary>
@@ -90,25 +103,30 @@ namespace ConsoleApp1 {
         private static int GetNumberOfJokes() {
             Console.WriteLine("How many jokes do you want? (1-9)");
             int numJokes = 0;
-            while (!Int32.TryParse(GetEnteredKey().ToString(), out numJokes) ) {
+            while (!Int32.TryParse(GetEnteredKey().ToString(), out numJokes)) {
                 Console.WriteLine("Invalid Selection, please enter a value from 1-9. Enter 0 to restart.");
             }
             return numJokes;
         }
 
-
-        private static void GetRandomJokes(string category, Tuple<string, string> names, int number) {
-            new JsonFeed("https://api.chucknorris.io", number);
-            //Loop the random joke generator for the number of jokes requested.
-            results = JsonFeed.GetRandomJokes(names?.Item1, names?.Item2, category);
+        /// <summary>
+        /// Calls API for a list of Random jokes
+        /// </summary>
+        /// <param name="category">An optional category of joke.</param>
+        /// <param name="nameList">An optional list of names to be used in the jokes.</param>
+        /// <param name="number">The number of jokes to get.</param>
+        private static void GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
+            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            results = jokeGen.GetRandomJokes(nameList, category, number).ToArray();
         }
 
         /// <summary>
         /// Calls API for the list of categories, and sets the information into the results variable.
         /// </summary>
         private static void GetCategories() {
-            new JsonFeed("https://api.chucknorris.io/jokes/categories", 0);
-            results = JsonFeed.GetCategories();
+            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+            catList = jokeGen.GetCategories();
+            results = catList.ToArray();
         }
 
         /// <summary>
@@ -116,11 +134,10 @@ namespace ConsoleApp1 {
         /// </summary>
         /// <param name="amount">Specifies the number of names to generate. Default value of 1. </param>
         /// <returns>Returns a Tuple of a persons name.</returns>
-        private static Tuple<string, string> GetNames(int amount = 1) {
-            //Update uri to include query string ?amount= (allows up to 500) to allow each joke to have random name
-            new JsonFeed("https://names.privserv.com/api/?amount=" + amount, 0);
-            dynamic result = JsonFeed.Getnames();
-            return Tuple.Create(result.name.ToString(), result.surname.ToString());
+        private static List<Tuple<string, string>> GetNames(int amount = 1) {
+            NameGenerator nameGen = new NameGenerator(new HttpClient());
+            return nameGen.GetNames(amount);
+
         }
 
 
