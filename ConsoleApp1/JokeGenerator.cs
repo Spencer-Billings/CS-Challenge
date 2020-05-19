@@ -69,8 +69,8 @@ namespace JokeGenerator
             }
 
             for (int it = 0; it < numJokes; it++) {
-                string firstName = nameList.FirstOrDefault().Item1;
-                string lastName = nameList.FirstOrDefault().Item2;
+                string firstName = nameList.FirstOrDefault()?.Item1;
+                string lastName = nameList.FirstOrDefault()?.Item2;
 
                 if(it < nameList.Count) {
                     firstName = nameList[it].Item1;
