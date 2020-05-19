@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace JokeGenerator
@@ -57,7 +57,7 @@ namespace JokeGenerator
         /// <returns></returns>
         public List<string> GetRandomJokes(List<Tuple<string,string>> nameList, string category, int numJokes = 1) {
             _client.BaseAddress = new Uri(kBaseURL);
-            List<string> jokes = new List<string>();
+            ConcurrentBag<string> jokes = new ConcurrentBag<string>();
 
             string url = "jokes/random";
             if (category != null) {
@@ -67,14 +67,17 @@ namespace JokeGenerator
                 url += "category=";
                 url += category;
             }
+            ParallelOptions po = new ParallelOptions();
+            po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
 
-            for (int it = 0; it < numJokes; it++) {
+            int it = 0;
+            Parallel.For (it, numJokes, po, nameIndex => {
                 string firstName = nameList.FirstOrDefault()?.Item1;
                 string lastName = nameList.FirstOrDefault()?.Item2;
 
-                if(it < nameList.Count) {
-                    firstName = nameList[it].Item1;
-                    lastName = nameList[it].Item2;
+                if(nameIndex < nameList.Count) {
+                    firstName = nameList[nameIndex].Item1;
+                    lastName = nameList[nameIndex].Item2;
                 }
 
                 try {
@@ -91,10 +94,10 @@ namespace JokeGenerator
                 } catch (Exception ex) {
                     //TODO:Implement logging
                 }
-            }
+            });
 
 
-            return jokes;
+            return jokes.ToList();
         }
     }
 }
