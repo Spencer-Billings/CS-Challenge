@@ -27,14 +27,18 @@ namespace JokeGenerator {
                     bool randomNames = false;
                     List<Tuple<string, string>> names = new List<Tuple<string, string>>()
                         {Tuple.Create("Chuck", "Norris")}; // initialize name with a sane default.
+
                     if (GetEnteredKey() == 'y') {
+                        //turn on flag to generate random names.
                         randomNames = true;
                     }
+
                     Console.WriteLine("Want to specify a category? y/n");
                     string category = null;
                     if (GetEnteredKey() == 'y') {
                         Console.WriteLine("Enter a category, then Press 'Enter'.");
                         if (catList.Count > 0) {
+                            //If the user has looked for categories, display that latest categories shown.
                             Console.WriteLine($"Available Categories: [{string.Join(", ", catList)}]");
                         }
                         category = Console.ReadLine();
@@ -46,7 +50,7 @@ namespace JokeGenerator {
                         names = GetNames(numJokes);
                     }
 
-                    
+
                     PrintResults(GetRandomJokes(category, names, numJokes));
 
                 } else if (key == 'x') {
