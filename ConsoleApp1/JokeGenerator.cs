@@ -1,16 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace JokeGenerator
-{
-    class JokeGenerator
-    {
+namespace JokeGenerator {
+    public class JokeGenerator {
         private const string kBaseURL = "https://api.chucknorris.io";
         HttpClient _client;
 
@@ -25,14 +23,14 @@ namespace JokeGenerator
         public List<string> GetCategories() {
             _client.BaseAddress = new Uri(kBaseURL);
             var categoryList = new List<string>();
-            
+
 
             try {
                 string response = _client.GetStringAsync("/jokes/categories").Result;
                 var categories = JsonConvert.DeserializeObject<dynamic>(response);
-                
+
                 if (categories.Type == JTokenType.Array) {
-                    //If getting more than a single name, it is returned as an array, so iterate through and build your name list.
+                    //If getting more than a single category, it is returned as an array, so iterate through and build your category list.
                     foreach (JToken category in categories) {
                         categoryList.Add(category.ToString());
                     }
@@ -55,11 +53,12 @@ namespace JokeGenerator
         /// <param name="category">An optional category of jokes.</param>
         /// <param name="numJokes">The number of jokes to read.</param>
         /// <returns></returns>
-        public List<string> GetRandomJokes(List<Tuple<string,string>> nameList, string category, int numJokes = 1) {
+        public List<string> GetRandomJokes(List<Tuple<string, string>> nameList, string category, int numJokes = 1) {
             _client.BaseAddress = new Uri(kBaseURL);
-            List<string> jokes = new List<string>();
+            ConcurrentBag<string> jokes = new ConcurrentBag<string>();
 
             string url = "jokes/random";
+            //Add category query string if category provided.
             if (category != null) {
                 if (url.Contains('?'))
                     url += "&";
@@ -67,23 +66,29 @@ namespace JokeGenerator
                 url += "category=";
                 url += category;
             }
+            ParallelOptions po = new ParallelOptions();
+            po.MaxDegreeOfParallelism = System.Environment.ProcessorCount;
 
-            for (int it = 0; it < numJokes; it++) {
-                string firstName = nameList.FirstOrDefault().Item1;
-                string lastName = nameList.FirstOrDefault().Item2;
+            int it = 0;
+            Parallel.For(it, numJokes, po, nameIndex => {
+                //Default the name to the first name provided
+                string firstName = nameList.FirstOrDefault()?.Item1;
+                string lastName = nameList.FirstOrDefault()?.Item2;
 
-                if(it < nameList.Count) {
-                    firstName = nameList[it].Item1;
-                    lastName = nameList[it].Item2;
+                //If a name in the list can be used, grab that name.
+                if (nameIndex < nameList.Count) {
+                    firstName = nameList[nameIndex].Item1;
+                    lastName = nameList[nameIndex].Item2;
                 }
 
                 try {
                     string joke = _client.GetStringAsync(url).Result;
 
+                    //If a name was provided, replace Chuck Norris with the name.
                     if (firstName != null && lastName != null) {
                         joke = joke.Replace("Chuck Norris", firstName + " " + lastName);
-                        
                     }
+                    //Add the joke to the list to be returned.
                     JObject jokeJson = JObject.Parse(joke);
                     jokes.Add(jokeJson["value"].ToString());
                 } catch (HttpRequestException ex) {
@@ -91,10 +96,10 @@ namespace JokeGenerator
                 } catch (Exception ex) {
                     //TODO:Implement logging
                 }
-            }
+            });
 
 
-            return jokes;
+            return jokes.ToList();
         }
     }
 }

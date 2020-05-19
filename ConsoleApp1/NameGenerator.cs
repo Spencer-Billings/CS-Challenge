@@ -3,10 +3,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 
 namespace JokeGenerator {
-    class NameGenerator {
+    public class NameGenerator {
         private const string kBaseURL = "https://names.privserv.com/api/";
         HttpClient _client;
 

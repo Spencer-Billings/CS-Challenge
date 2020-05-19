@@ -1,17 +1,10 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using JokeGenerator;
-using Newtonsoft.Json;
 
-namespace ConsoleApp1 {
+namespace JokeGenerator {
     class Program {
-        //results does not need to be global, make this private/parameter
-        static string[] results = new string[50];
         private static List<string> catList = new List<string>();
 
         static void Main(string[] args) {
@@ -27,22 +20,25 @@ namespace ConsoleApp1 {
                 key = GetEnteredKey();
                 if (key == 'c') {
                     //Get category list, and display it to user
-                    GetCategories();
-                    PrintResults();
+                    PrintResults(GetCategories());
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
                     Console.WriteLine("Want to use a random name? y/n");
                     bool randomNames = false;
                     List<Tuple<string, string>> names = new List<Tuple<string, string>>()
                         {Tuple.Create("Chuck", "Norris")}; // initialize name with a sane default.
+
                     if (GetEnteredKey() == 'y') {
+                        //turn on flag to generate random names.
                         randomNames = true;
                     }
+
                     Console.WriteLine("Want to specify a category? y/n");
                     string category = null;
                     if (GetEnteredKey() == 'y') {
                         Console.WriteLine("Enter a category, then Press 'Enter'.");
                         if (catList.Count > 0) {
+                            //If the user has looked for categories, display that latest categories shown.
                             Console.WriteLine($"Available Categories: [{string.Join(", ", catList)}]");
                         }
                         category = Console.ReadLine();
@@ -54,8 +50,8 @@ namespace ConsoleApp1 {
                         names = GetNames(numJokes);
                     }
 
-                    GetRandomJokes(category, names, numJokes);
-                    PrintResults();
+
+                    PrintResults(GetRandomJokes(category, names, numJokes));
 
                 } else if (key == 'x') {
                     //Exit the program cleanly.
@@ -79,7 +75,11 @@ namespace ConsoleApp1 {
             Console.WriteLine(new String('-', 40));
         }
 
-        private static void PrintResults() {
+        /// <summary>
+        /// Display the results to the user.
+        /// </summary>
+        /// <param name="results">A list of string to be printed out.</param>
+        private static void PrintResults(List<string> results) {
             Console.WriteLine("[" + string.Join("\n", results) + "]");
         }
 
@@ -115,18 +115,18 @@ namespace ConsoleApp1 {
         /// <param name="category">An optional category of joke.</param>
         /// <param name="nameList">An optional list of names to be used in the jokes.</param>
         /// <param name="number">The number of jokes to get.</param>
-        private static void GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
-            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
-            results = jokeGen.GetRandomJokes(nameList, category, number).ToArray();
+        private static List<string> GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
+            var jokeGen = new JokeGenerator(new HttpClient());
+            return jokeGen.GetRandomJokes(nameList, category, number);
         }
 
         /// <summary>
         /// Calls API for the list of categories, and sets the information into the results variable.
         /// </summary>
-        private static void GetCategories() {
-            var jokeGen = new JokeGenerator.JokeGenerator(new HttpClient());
+        private static List<string> GetCategories() {
+            var jokeGen = new JokeGenerator(new HttpClient());
             catList = jokeGen.GetCategories();
-            results = catList.ToArray();
+            return catList;
         }
 
         /// <summary>
