@@ -5,8 +5,6 @@ using System.Net.Http;
 
 namespace JokeGenerator {
     class Program {
-        //results does not need to be global, make this private/parameter
-        static string[] results = new string[50];
         private static List<string> catList = new List<string>();
 
         static void Main(string[] args) {
@@ -22,8 +20,7 @@ namespace JokeGenerator {
                 key = GetEnteredKey();
                 if (key == 'c') {
                     //Get category list, and display it to user
-                    GetCategories();
-                    PrintResults();
+                    PrintResults(GetCategories());
                 } else if (key == 'r') {
                     //Generate 1-9 random jokes for the user
                     Console.WriteLine("Want to use a random name? y/n");
@@ -49,8 +46,8 @@ namespace JokeGenerator {
                         names = GetNames(numJokes);
                     }
 
-                    GetRandomJokes(category, names, numJokes);
-                    PrintResults();
+                    
+                    PrintResults(GetRandomJokes(category, names, numJokes));
 
                 } else if (key == 'x') {
                     //Exit the program cleanly.
@@ -74,7 +71,11 @@ namespace JokeGenerator {
             Console.WriteLine(new String('-', 40));
         }
 
-        private static void PrintResults() {
+        /// <summary>
+        /// Display the results to the user.
+        /// </summary>
+        /// <param name="results">A list of string to be printed out.</param>
+        private static void PrintResults(List<string> results) {
             Console.WriteLine("[" + string.Join("\n", results) + "]");
         }
 
@@ -110,18 +111,18 @@ namespace JokeGenerator {
         /// <param name="category">An optional category of joke.</param>
         /// <param name="nameList">An optional list of names to be used in the jokes.</param>
         /// <param name="number">The number of jokes to get.</param>
-        private static void GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
+        private static List<string> GetRandomJokes(string category, List<Tuple<string, string>> nameList, int number) {
             var jokeGen = new JokeGenerator(new HttpClient());
-            results = jokeGen.GetRandomJokes(nameList, category, number).ToArray();
+            return jokeGen.GetRandomJokes(nameList, category, number);
         }
 
         /// <summary>
         /// Calls API for the list of categories, and sets the information into the results variable.
         /// </summary>
-        private static void GetCategories() {
+        private static List<string> GetCategories() {
             var jokeGen = new JokeGenerator(new HttpClient());
             catList = jokeGen.GetCategories();
-            results = catList.ToArray();
+            return catList;
         }
 
         /// <summary>
